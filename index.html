@@ -10,9 +10,120 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
     <meta name="apple-mobile-web-app-title" content="Sinal">
     <link rel="apple-touch-icon" href="icon-192.png">
+    <style>
+        :root {
+            --primary-color: #ffc107;
+            --bg-dark: #121212;
+            --sidebar-bg: #1e1e1e;
+            --highlight: #4CAF50;
+        }
+
+        body {
+            font-family: sans-serif;
+            background-color: var(--bg-dark);
+            color: white;
+            margin: 0;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* BARRA LATERAL */
+        .sidebar {
+            width: 300px;
+            background-color: var(--sidebar-bg);
+            border-right: 2px solid #333;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            background: #252525;
+            text-align: center;
+            border-bottom: 1px solid #333;
+        }
+
+        .lista-horarios {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .horario-item {
+            padding: 15px 20px;
+            border-bottom: 1px solid #2a2a2a;
+            display: flex;
+            justify-content: space-between;
+            transition: 0.3s;
+            font-size: 0.9rem;
+            color: #bbb;
+        }
+
+        /* TARJA DE DESTAQUE (HORÁRIO ATUAL) */
+        .horario-item.ativo {
+            background-color: var(--highlight);
+            color: white;
+            font-weight: bold;
+            border-left: 5px solid white;
+        }
+
+        .intervalo-label {
+            color: var(--primary-color);
+            font-size: 0.7rem;
+            display: block;
+        }
+
+        /* CONTEÚDO PRINCIPAL */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 20px;
+        }
+
+        #relogio {
+            font-size: 5rem;
+            margin-bottom: 20px;
+        }
+
+        .proximo-toque {
+            font-size: 2rem;
+            color: var(--primary-color);
+        }
+
+        #btnIniciar {
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            background: var(--primary-color);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            body { flex-direction: column; }
+            .sidebar { width: 100%; height: 40%; }
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
+
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h3>Grade de Horários</h3>
+        </div>
+        <ul class="lista-horarios" id="listaHorariosUI">
+            </ul>
+    </div>
+
+    <div class="main-content">
         <h1>Sinal Escolar Automático</h1>
         
         <div id="relogio">00:00:00</div>
@@ -40,12 +151,5 @@
     </div>
 
     <script src="script.js"></script>
-    <script>
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js')
-            .then(() => console.log("Service Worker Registrado!"))
-            .catch(err => console.log("Erro no SW:", err));
-        }
-    </script>
 </body>
 </html>
