@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sinal Escolar</title>
+    
+    <link rel="stylesheet" href="style.css">
+    
+    <link rel="manifest" href="manifest.json">
+    
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="Sinal">
+    <link rel="apple-touch-icon" href="icon-192.png">
+</head>
+<body>
+    <div class="container">
+        <h1>Sinal Escolar Automático</h1>
+        
+        <div id="relogio">00:00:00</div>
+        
+        <button id="btnIniciar">ATIVAR SISTEMA</button>
+        <p id="status">Sistema Inativo. Clique em ativar.</p>
+        
+        <div class="proximo-toque">
+            Próximo sinal: <span id="proxSinal">--:--</span>
+        </div>
+    </div>
+
+    <audio id="somIntro" src="sons/sinal.mp3"></audio>
+
+    <audio id="somA1" src="sons/a1.mp3"></audio>
+    <audio id="somA2" src="sons/a2.mp3"></audio>
+    <audio id="somA3" src="sons/a3.mp3"></audio>
+    
+    <audio id="somA4" src="sons/a4.mp3"></audio> <audio id="somA5" src="sons/a5.mp3"></audio> <audio id="somA6" src="sons/a6.mp3"></audio> <audio id="somA7" src="sons/a7.mp3"></audio> <audio id="somA8" src="sons/a8.mp3"></audio> <audio id="somA9" src="sons/a9.mp3"></audio> <audio id="somFim" src="sons/fim.mp3"></audio> <script src="script.js"></script>
+
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js')
+            .then(() => console.log("Service Worker Registrado!"))
+            .catch(err => console.log("Erro no SW:", err));
+        }
+    </script>
+</body>
+</html>

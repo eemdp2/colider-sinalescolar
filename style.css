@@ -1,0 +1,89 @@
+/* Reset básico */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: #0d0d0d; /* Fundo quase preto para economizar energia da TV */
+    color: #ffffff;
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden; /* Remove barras de rolagem */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.container {
+    text-align: center;
+    width: 100%;
+    max-width: 100%;
+}
+
+/* Título da Escola (Menor para dar destaque ao relógio) */
+h1 {
+    font-size: 3vw; /* Tamanho responsivo (3% da largura da tela) */
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 0;
+}
+
+/* O RELÓGIO GIGANTE */
+#relogio {
+    font-size: 22vw; /* GIGANTE: Ocupa 22% da largura da tela */
+    font-weight: bold;
+    color: #00e5ff; /* Azul Ciano Digital */
+    text-shadow: 0 0 30px rgba(0, 229, 255, 0.4); /* Efeito de brilho neon */
+    line-height: 1;
+    font-variant-numeric: tabular-nums; /* Evita que os números "pulem" */
+    margin: 20px 0;
+}
+
+/* Informação do Próximo Sinal */
+.proximo-toque {
+    font-size: 5vw; /* Grande o suficiente para ler de longe */
+    color: #ffca28; /* Amarelo para destaque */
+    margin-top: 10px;
+    font-weight: 500;
+}
+
+#proxSinal {
+    font-weight: bold;
+    color: #fff;
+}
+
+/* Botão de Iniciar (Só aparece antes de ativar) */
+#btnIniciar {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 20px 40px;
+    font-size: 2rem;
+    border-radius: 10px;
+    cursor: pointer;
+    margin: 20px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    transition: transform 0.2s;
+}
+
+#btnIniciar:hover {
+    transform: scale(1.05);
+    background-color: #218838;
+}
+
+#status {
+    font-size: 1.5rem;
+    color: #666;
+    margin-top: 10px;
+}
+
+/* Ajuste para telas menores (Celular) caso precise testar */
+@media (max-width: 600px) {
+    #relogio { font-size: 18vw; }
+    h1 { font-size: 5vw; }
+    .proximo-toque { font-size: 6vw; }
+}
