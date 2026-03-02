@@ -11,62 +11,63 @@
     <meta name="apple-mobile-web-app-title" content="Sinal">
     <link rel="apple-touch-icon" href="icon-192.png">
     <style>
-    /* Estilo do Container do Editor */
-    #editorHorarios { 
-        display:none; 
-        background: #fff; 
-        padding: 20px; 
-        border-radius: 12px; 
-        color: #333; 
-        margin-top: 20px; 
-        border: 2px solid #ddd; 
-        text-align: left; 
-        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-        max-width: 600px; /* Limita a largura para não esticar demais */
-        margin-left: auto;
-        margin-right: auto;
-    }
+        /* Estilo do Painel de Edição */
+        #editorHorarios { 
+            display:none; 
+            background: #fff; 
+            padding: 15px; 
+            border-radius: 12px; 
+            color: #333; 
+            margin-top: 20px; 
+            border: 2px solid #ddd; 
+            text-align: left; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
 
-    /* A MÁGICA: Limita a altura da lista e adiciona scroll */
-    #listaHorariosUI {
-        max-height: 300px; /* Altura máxima antes de começar a rolar */
-        overflow-y: auto;  /* Ativa o scroll vertical */
-        margin-bottom: 15px;
-        padding-right: 5px;
-        border: 1px solid #eee;
-        border-radius: 4px;
-    }
+        /* ÁREA DE ROLAGEM: Evita que a lista empurre os botões para baixo */
+        #listaHorariosUI {
+            max-height: 250px; /* Define uma altura máxima */
+            overflow-y: auto;  /* Adiciona a barra de rolagem vertical */
+            margin-bottom: 15px;
+            padding: 5px;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            background: #fafafa;
+        }
 
-    /* Estilo dos itens da lista */
-    .item-horario { 
-        display: flex; 
-        justify-content: space-between; 
-        align-items: center; 
-        margin-bottom: 8px; 
-        padding: 10px; 
-        background: #f8f9fa; 
-        border-radius: 6px; 
-        border-left: 4px solid #444;
-    }
+        .item-horario { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-bottom: 8px; 
+            padding: 8px; 
+            background: #fff; 
+            border-radius: 6px; 
+            border: 1px solid #ddd;
+            font-size: 14px;
+        }
 
-    /* Controles de Adição (Sempre visíveis abaixo da lista) */
-    .controles-add { 
-        background: #f1f1f1;
-        padding: 15px;
-        border-radius: 8px;
-        display: flex; 
-        flex-direction: column; 
-        gap: 10px; 
-    }
+        .controles-add { 
+            background: #f1f1f1;
+            padding: 15px;
+            border-radius: 8px;
+            display: flex; 
+            flex-direction: column; 
+            gap: 10px;
+            border-top: 2px solid #ddd;
+        }
 
-    .btn-excluir { background: #ff4d4d; color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; }
-    select, input[type="time"] { padding: 12px; border-radius: 6px; border: 1px solid #ccc; font-size: 16px; width: 100%; box-sizing: border-box; }
-    .btn-acao { padding: 12px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; color: white; width: 100%; }
-
-    /* Customização da barra de rolagem para ficar elegante */
-    #listaHorariosUI::-webkit-scrollbar { width: 8px; }
-    #listaHorariosUI::-webkit-scrollbar-thumb { background: #ccc; border-radius: 4px; }
-</style>
+        .btn-excluir { background: #ff4d4d; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
+        select, input[type="time"] { padding: 10px; border-radius: 6px; border: 1px solid #ccc; font-size: 16px; width: 100%; box-sizing: border-box; }
+        .btn-acao { padding: 12px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; color: white; width: 100%; }
+        
+        /* Estilização da barra de rolagem */
+        #listaHorariosUI::-webkit-scrollbar { width: 6px; }
+        #listaHorariosUI::-webkit-scrollbar-thumb { background: #bbb; border-radius: 10px; }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -80,18 +81,18 @@
             Próximo sinal: <span id="proxSinal">--:--</span>
         </div>
 
-        <button id="btnAbrirEditor" style="background: #444; margin-top: 30px;">⚙️ GERENCIAR HORÁRIOS</button>
+        <button id="btnAbrirEditor" style="background: #444; margin-top: 20px;">⚙️ GERENCIAR HORÁRIOS</button>
 
         <div id="editorHorarios">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                <h3 style="margin:0">Lista de Sinais</h3>
-                <button onclick="resetarPadroes()" style="background: #ff9800; color: white; border:none; padding: 5px 10px; border-radius: 4px; font-size: 11px; cursor: pointer;">RESETAR PADRÕES</button>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <h3 style="margin:0">Sinais Configurados</h3>
+                <button onclick="resetarPadroes()" style="background: #ff9800; color: white; border:none; padding: 4px 8px; border-radius: 4px; font-size: 10px; cursor: pointer;">RESETAR</button>
             </div>
 
             <div id="listaHorariosUI"></div>
             
             <div class="controles-add">
-                <strong>Adicionar ou Alterar:</strong>
+                <strong>Adicionar / Alterar:</strong>
                 <input type="time" id="novoHora">
                 <select id="novoSom">
                     <option value="somA1">Início (A1)</option>
@@ -105,7 +106,7 @@
                     <option value="somA9">Saída (A9)</option>
                     <option value="somFim">Saída Especial (Fim)</option>
                 </select>
-                <button onclick="adicionarNovoHorario()" class="btn-acao" style="background: #28a745;">SALVAR / ALTERAR</button>
+                <button onclick="adicionarNovoHorario()" class="btn-acao" style="background: #28a745;">SALVAR ALTERAÇÃO</button>
                 <button onclick="fecharEditor()" class="btn-acao" style="background: #6c757d;">FECHAR</button>
             </div>
         </div>
@@ -126,12 +127,5 @@
     </div>
 
     <script src="script.js"></script>
-    <script>
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js')
-            .then(() => console.log("SW OK"))
-            .catch(err => console.log("SW Erro", err));
-        }
-    </script>
 </body>
 </html>
