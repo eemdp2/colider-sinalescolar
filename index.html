@@ -1,120 +1,199 @@
-const displayRelogio = document.getElementById('relogio');
-const displayProx = document.getElementById('proxSinal');
-const btnIniciar = document.getElementById('btnIniciar');
-const statusTexto = document.getElementById('status');
-const listaUI = document.getElementById('listaHorariosUI');
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sinal Escolar Pro</title>
+    <style>
+        :root {
+            --primary: #00f2ff;
+            --accent: #ffc107;
+            --bg: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --highlight: #22c55e;
+        }
 
-const gradeEscolar = [
-    { inicio: "07:00", fim: "07:45", desc: "1ª Aula", som: "somA1" },
-    { inicio: "07:45", fim: "08:30", desc: "2ª Aula", som: "somA2" },
-    { inicio: "08:30", fim: "09:15", desc: "3ª Aula", som: "somA3" },
-    { inicio: "09:15", fim: "09:28", desc: "INTERVALO", som: "somA4" },
-    { inicio: "09:28", fim: "09:30", desc: "AVISO", som: "somA5" },
-    { inicio: "09:30", fim: "10:25", desc: "4ª Aula", som: "somA6" },
-    { inicio: "10:25", fim: "11:10", desc: "5ª Aula", som: "somA7" },
-    { inicio: "11:10", fim: "12:00", desc: "6ª Aula", som: "somA8" },
-    { inicio: "12:00", fim: "13:00", desc: "FIM MATUTINO", som: "somA9" },
-    { inicio: "13:00", fim: "13:45", desc: "1ª Aula", som: "somA1" },
-    { inicio: "13:45", fim: "14:30", desc: "2ª Aula", som: "somA2" },
-    { inicio: "14:30", fim: "15:15", desc: "3ª Aula", som: "somA3" },
-    { inicio: "15:15", fim: "15:28", desc: "INTERVALO", som: "somA4" },
-    { inicio: "15:28", fim: "15:30", desc: "AVISO", som: "somA5" },
-    { inicio: "15:30", fim: "16:20", desc: "5ª Aula", som: "somA6" },
-    { inicio: "16:20", fim: "17:10", desc: "6ª Aula", som: "somA7" },
-    { inicio: "17:10", fim: "23:59", desc: "SAÍDA", som: "somFim" }
-];
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: radial-gradient(circle at top right, #1e293b, #0f172a);
+            color: #f8fafc;
+            margin: 0;
+            display: flex;
+            height: 100vh;
+        }
 
-let sistemaAtivo = false;
+        /* SIDEBAR ESTILIZADA */
+        .sidebar {
+            width: 350px;
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            border-right: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            flex-direction: column;
+            box-shadow: 10px 0 30px rgba(0,0,0,0.3);
+        }
 
-function renderizarSidebar() {
-    listaUI.innerHTML = '';
-    gradeEscolar.forEach((item, index) => {
-        const li = document.createElement('li');
-        li.className = 'horario-item';
-        li.id = `item-${index}`;
+        .sidebar-header {
+            padding: 30px 20px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .sidebar-header h3 {
+            margin: 0;
+            letter-spacing: 2px;
+            color: var(--primary);
+            text-shadow: 0 0 10px rgba(0, 242, 255, 0.5);
+        }
+
+        .lista-horarios {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            overflow-y: auto;
+        }
+
+        .horario-item {
+            padding: 15px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s;
+        }
+
+        .horario-item:hover {
+            background: rgba(255,255,255,0.05);
+        }
+
+        /* TARJA ATIVA */
+        .horario-item.ativo {
+            background: linear-gradient(90deg, rgba(34, 197, 94, 0.2), transparent);
+            border-left: 4px solid var(--highlight);
+            color: #fff;
+        }
+
+        .horario-item.ativo .time-tag { color: var(--highlight); }
+
+        /* BOTÃO DE TESTE */
+        .btn-teste {
+            background: rgba(255,255,255,0.1);
+            border: none;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.3s;
+            margin-left: 10px;
+        }
+
+        .btn-teste:hover {
+            background: var(--primary);
+            transform: scale(1.1);
+        }
+
+        /* CONTEÚDO PRINCIPAL */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        #relogio {
+            font-size: 8rem;
+            font-weight: 800;
+            font-family: 'JetBrains Mono', monospace;
+            background: linear-gradient(to bottom, #fff, #94a3b8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 0;
+            filter: drop-shadow(0 0 20px rgba(0, 242, 255, 0.2));
+        }
+
+        .proximo-container {
+            margin-top: 20px;
+            padding: 15px 40px;
+            border-radius: 100px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            font-size: 1.5rem;
+        }
+
+        #proxSinal { color: var(--accent); font-weight: bold; }
+
+        #btnIniciar {
+            margin-top: 30px;
+            padding: 18px 60px;
+            font-size: 1.2rem;
+            text-transform: uppercase;
+            font-weight: bold;
+            letter-spacing: 2px;
+            border-radius: 50px;
+            border: none;
+            background: var(--primary);
+            color: #000;
+            cursor: pointer;
+            box-shadow: 0 0 30px rgba(0, 242, 255, 0.4);
+            transition: 0.3s;
+        }
+
+        #btnIniciar:hover { transform: translateY(-3px); box-shadow: 0 0 50px rgba(0, 242, 255, 0.6); }
+
+        .tag-tipo {
+            font-size: 0.7rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+            background: rgba(255,255,255,0.1);
+            margin-right: 10px;
+        }
+
+        @media (max-width: 900px) {
+            body { flex-direction: column; }
+            .sidebar { width: 100%; height: 40%; }
+            #relogio { font-size: 4rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h3>SINAL ESCOLAR</h3>
+        </div>
+        <ul class="lista-horarios" id="listaHorariosUI"></ul>
+    </div>
+
+    <div class="main-content">
+        <div id="relogio">00:00:00</div>
+        <button id="btnIniciar">Ativar Sistema</button>
+        <div id="status" style="margin-top:10px; color:#64748b">Sistema Offline</div>
         
-        li.innerHTML = `
-            <div style="display:flex; align-items:center">
-                <span class="tag-tipo">${item.desc}</span>
-                <strong class="time-tag">${item.inicio}</strong>
-            </div>
-            <button class="btn-teste" onclick="testarSom('${item.som}')" title="Testar Som">
-                ▶
-            </button>
-        `;
-        listaUI.appendChild(li);
-    });
-}
+        <div class="proximo-container">
+            Próximo sinal: <span id="proxSinal">--:--</span>
+        </div>
+    </div>
 
-function testarSom(idSom) {
-    // Toca o som de teste (sem a intro para ser mais rápido)
-    const audio = document.getElementById(idSom);
-    if (audio) {
-        audio.currentTime = 0;
-        audio.play().catch(e => alert("Clique em 'Ativar Sistema' primeiro para permitir áudio."));
-    }
-}
+    <div style="display:none">
+        <audio id="somIntro" src="sons/sinal.mp3"></audio>
+        <audio id="somA1" src="sons/a1.mp3"></audio>
+        <audio id="somA2" src="sons/a2.mp3"></audio>
+        <audio id="somA3" src="sons/a3.mp3"></audio>
+        <audio id="somA4" src="sons/a4.mp3"></audio> 
+        <audio id="somA5" src="sons/a5.mp3"></audio> 
+        <audio id="somA6" src="sons/a6.mp3"></audio> 
+        <audio id="somA7" src="sons/a7.mp3"></audio> 
+        <audio id="somA8" src="sons/a8.mp3"></audio> 
+        <audio id="somA9" src="sons/a9.mp3"></audio> 
+        <audio id="somFim" src="sons/fim.mp3"></audio>
+    </div>
 
-function atualizarRelogio() {
-    const agora = new Date();
-    const h = agora.getHours();
-    const m = agora.getMinutes();
-    const s = agora.getSeconds();
-    
-    const horaAtualStr = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
-    const totalMinutos = h * 60 + m;
-
-    displayRelogio.innerText = `${horaAtualStr}:${String(s).padStart(2, '0')}`;
-
-    gradeEscolar.forEach((item, index) => {
-        const [hIn, mIn] = item.inicio.split(':').map(Number);
-        const [hFi, mFi] = item.fim.split(':').map(Number);
-        const minIn = hIn * 60 + mIn;
-        const minFi = hFi * 60 + mFi;
-
-        const el = document.getElementById(`item-${index}`);
-        if (totalMinutos >= minIn && totalMinutos < minFi) {
-            el.classList.add('ativo');
-        } else {
-            el.classList.remove('ativo');
-        }
-
-        // Toca o sinal automático
-        if (sistemaAtivo && s === 0 && horaAtualStr === item.inicio) {
-            tocarSequencia(item.som);
-        }
-    });
-
-    if (s === 0) atualizarProximoSinal(totalMinutos);
-}
-
-function tocarSequencia(idSom) {
-    const intro = document.getElementById('somIntro');
-    const final = document.getElementById(idSom);
-    if (intro && final) {
-        intro.currentTime = 0;
-        intro.play();
-        intro.onended = () => { final.play(); };
-    }
-}
-
-function atualizarProximoSinal(minutosAtuais) {
-    const proximo = gradeEscolar.find(item => {
-        const [h, m] = item.inicio.split(':').map(Number);
-        return (h * 60 + m) > minutosAtuais;
-    });
-    displayProx.innerText = proximo ? proximo.inicio : "Amanhã";
-}
-
-btnIniciar.onclick = () => {
-    sistemaAtivo = true;
-    btnIniciar.style.display = 'none';
-    statusTexto.innerText = "SISTEMA ONLINE";
-    statusTexto.style.color = "#22c55e";
-    // Tira o "mudo" do navegador
-    document.getElementById('somIntro').play().then(p => document.getElementById('somIntro').pause());
-};
-
-renderizarSidebar();
-setInterval(atualizarRelogio, 1000);
-atualizarRelogio();
+    <script src="script.js"></script>
+</body>
+</html>
