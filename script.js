@@ -3,7 +3,7 @@ const displayProx = document.getElementById('proxSinal');
 const btnIniciar = document.getElementById('btnIniciar');
 const statusTexto = document.getElementById('status');
 
-// 1. CARREGAMENTO DOS DADOS (Padrão ou Salvo)
+// 1. CONFIGURAÇÃO INICIAL (Horários originais)
 const horariosPadrao = {
     "07:00": "somA1", "07:45": "somA2", "08:30": "somA3",
     "09:15": "somA4", "09:36": "somA5", "09:40": "somA6",
@@ -13,16 +13,19 @@ const horariosPadrao = {
     "16:25": "somA7", "17:55": "somA9"
 };
 
-let mapaHorarios = JSON.parse(localStorage.getItem('configHorarios')) || horariosPadrao;
+// Carrega os horários salvos ou usa o padrão se for a primeira vez
+let mapaHorarios = JSON.parse(localStorage.getItem('configHorarios')) || {...horariosPadrao};
 
 let sistemaAtivo = false;
 let wakeLock = null;
 
-// --- LÓGICA DO RELÓGIO E TOQUE ---
+// --- FUNÇÕES DE CONTROLE DO SISTEMA ---
 
 async function manterTelaLigada() {
     try {
-        wakeLock = await navigator.wakeLock.request('screen');
+        if ('wakeLock' in navigator) {
+            wakeLock = await navigator.wakeLock.request('screen');
+        }
         statusTexto.innerText = "Sistema Ativo e Tela Bloqueada";
         statusTexto.style.color = "#4CAF50"; 
     } catch (err) {
@@ -32,7 +35,8 @@ async function manterTelaLigada() {
 
 btnIniciar.addEventListener('click', () => {
     sistemaAtivo = true;
-    // Acorda o áudio no mobile
+    
+    // Desbloqueia o áudio para navegadores mobile
     const intro = document.getElementById('somIntro');
     intro.play().then(() => { intro.pause(); }).catch(()=>{});
     
@@ -50,28 +54,33 @@ function atualizarRelogio() {
 
     displayRelogio.innerText = `${h}:${m}:${s}`;
 
+    // Verifica toque no segundo 00
     if (sistemaAtivo && s === "00") {
         if (mapaHorarios[horaAtual]) {
             tocarSequencia(mapaHorarios[horaAtual]);
         }
     }
     
+    // Atualiza o display de "próximo" a cada minuto
     if (s === "00") { atualizarProximoSinal(); }
 }
 
-function tocarSequencia(idElementoEspecifico) {
+function tocarSequencia(idSom) {
     const intro = document.getElementById('somIntro');
-    const especifico = document.getElementById(idElementoEspecifico);
+    const somFinal = document.getElementById(idSom);
 
-    if (intro && especifico) {
+    if (intro && somFinal) {
+        console.log("Tocando sinal: " + idSom);
         intro.volume = 1.0;
-        especifico.volume = 1.0;
-        intro.onended = function() {
-            especifico.currentTime = 0;
-            especifico.play();
-        };
+        somFinal.volume = 1.0;
+        
         intro.currentTime = 0;
         intro.play();
+
+        intro.onended = () => {
+            somFinal.currentTime = 0;
+            somFinal.play();
+        };
     }
 }
 
@@ -87,7 +96,7 @@ function atualizarProximoSinal() {
     displayProx.innerText = proximo || "Amanhã";
 }
 
-// --- LÓGICA DO EDITOR (INTERFACE) ---
+// --- FUNÇÕES DO EDITOR ---
 
 const editor = document.getElementById('editorHorarios');
 const listaUI = document.getElementById('listaHorariosUI');
@@ -101,7 +110,9 @@ function fecharEditor() { editor.style.display = 'none'; }
 
 function renderizarListaEditor() {
     listaUI.innerHTML = '';
-    Object.keys(mapaHorarios).sort().forEach(hora => {
+    const ordenados = Object.keys(mapaHorarios).sort();
+    
+    ordenados.forEach(hora => {
         const div = document.createElement('div');
         div.className = 'item-horario';
         div.innerHTML = `
@@ -115,15 +126,28 @@ function renderizarListaEditor() {
 function adicionarNovoHorario() {
     const h = document.getElementById('novoHora').value;
     const s = document.getElementById('novoSom').value;
+    
     if (h) {
-        mapaHorarios[h] = s;
+        mapaHorarios[h] = s; // Adiciona ou Substitui (Alterar)
         salvarDados();
+        document.getElementById('novoHora').value = "";
+    } else {
+        alert("Escolha um horário primeiro!");
     }
 }
 
 function removerHorario(h) {
-    delete mapaHorarios[h];
-    salvarDados();
+    if(confirm("Remover o sinal de " + h + "?")) {
+        delete mapaHorarios[h];
+        salvarDados();
+    }
+}
+
+function resetarPadroes() {
+    if (confirm("Isso apagará todas as suas alterações e voltará aos horários originais. Confirmar?")) {
+        mapaHorarios = {...horariosPadrao};
+        salvarDados();
+    }
 }
 
 function salvarDados() {
@@ -132,4 +156,6 @@ function salvarDados() {
     atualizarProximoSinal();
 }
 
+// Inicia o relógio
 setInterval(atualizarRelogio, 1000);
+atualizarProximoSinal();
