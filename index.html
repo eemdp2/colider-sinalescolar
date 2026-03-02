@@ -11,12 +11,12 @@
     <meta name="apple-mobile-web-app-title" content="Sinal">
     <link rel="apple-touch-icon" href="icon-192.png">
     <style>
-        /* Estilos rápidos para o editor */
-        #editorHorarios { display:none; background: #f9f9f9; padding: 15px; border-radius: 8px; color: #333; margin-top: 20px; text-align: left; border: 1px solid #ccc; }
-        .item-horario { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; padding-bottom: 5px; border-bottom: 1px solid #eee; }
-        .btn-excluir { background: #ff4d4d; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
-        .controles-add { margin-top: 15px; display: flex; flex-direction: column; gap: 10px; }
-        select, input[type="time"] { padding: 8px; border-radius: 4px; border: 1px solid #ccc; }
+        #editorHorarios { display:none; background: #fff; padding: 20px; border-radius: 12px; color: #333; margin-top: 20px; border: 2px solid #ddd; text-align: left; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .item-horario { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding: 8px; background: #f0f0f0; border-radius: 6px; }
+        .btn-excluir { background: #ff4d4d; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        .controles-add { margin-top: 20px; display: flex; flex-direction: column; gap: 12px; padding-top: 15px; border-top: 2px solid #eee; }
+        select, input[type="time"] { padding: 10px; border-radius: 6px; border: 1px solid #ccc; font-size: 16px; }
+        .btn-acao { padding: 12px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; color: white; }
     </style>
 </head>
 <body>
@@ -31,13 +31,18 @@
             Próximo sinal: <span id="proxSinal">--:--</span>
         </div>
 
-        <button id="btnAbrirEditor" style="background: #666; margin-top: 20px;">⚙️ CONFIGURAR HORÁRIOS</button>
+        <button id="btnAbrirEditor" style="background: #444; margin-top: 30px;">⚙️ GERENCIAR HORÁRIOS</button>
 
         <div id="editorHorarios">
-            <h3>Gerenciar Horários</h3>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h3 style="margin:0">Lista de Sinais</h3>
+                <button onclick="resetarPadroes()" style="background: #ff9800; color: white; border:none; padding: 5px 10px; border-radius: 4px; font-size: 11px; cursor: pointer;">RESETAR PADRÕES</button>
+            </div>
+
             <div id="listaHorariosUI"></div>
             
             <div class="controles-add">
+                <strong>Adicionar ou Alterar:</strong>
                 <input type="time" id="novoHora">
                 <select id="novoSom">
                     <option value="somA1">Início (A1)</option>
@@ -51,30 +56,32 @@
                     <option value="somA9">Saída (A9)</option>
                     <option value="somFim">Saída Especial (Fim)</option>
                 </select>
-                <button onclick="adicionarNovoHorario()" style="background: #4CAF50;">ADICIONAR</button>
-                <button onclick="fecharEditor()" style="background: #999;">FECHAR</button>
+                <button onclick="adicionarNovoHorario()" class="btn-acao" style="background: #28a745;">SALVAR / ALTERAR</button>
+                <button onclick="fecharEditor()" class="btn-acao" style="background: #6c757d;">FECHAR</button>
             </div>
         </div>
     </div>
 
-    <audio id="somIntro" src="sons/sinal.mp3"></audio>
-    <audio id="somA1" src="sons/a1.mp3"></audio>
-    <audio id="somA2" src="sons/a2.mp3"></audio>
-    <audio id="somA3" src="sons/a3.mp3"></audio>
-    <audio id="somA4" src="sons/a4.mp3"></audio> 
-    <audio id="somA5" src="sons/a5.mp3"></audio> 
-    <audio id="somA6" src="sons/a6.mp3"></audio> 
-    <audio id="somA7" src="sons/a7.mp3"></audio> 
-    <audio id="somA8" src="sons/a8.mp3"></audio> 
-    <audio id="somA9" src="sons/a9.mp3"></audio> 
-    <audio id="somFim" src="sons/fim.mp3"></audio>
+    <div style="display:none">
+        <audio id="somIntro" src="sons/sinal.mp3"></audio>
+        <audio id="somA1" src="sons/a1.mp3"></audio>
+        <audio id="somA2" src="sons/a2.mp3"></audio>
+        <audio id="somA3" src="sons/a3.mp3"></audio>
+        <audio id="somA4" src="sons/a4.mp3"></audio> 
+        <audio id="somA5" src="sons/a5.mp3"></audio> 
+        <audio id="somA6" src="sons/a6.mp3"></audio> 
+        <audio id="somA7" src="sons/a7.mp3"></audio> 
+        <audio id="somA8" src="sons/a8.mp3"></audio> 
+        <audio id="somA9" src="sons/a9.mp3"></audio> 
+        <audio id="somFim" src="sons/fim.mp3"></audio>
+    </div>
 
     <script src="script.js"></script>
     <script>
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('sw.js')
-            .then(() => console.log("Service Worker Registrado!"))
-            .catch(err => console.log("Erro no SW:", err));
+            .then(() => console.log("SW OK"))
+            .catch(err => console.log("SW Erro", err));
         }
     </script>
 </body>
