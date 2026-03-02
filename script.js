@@ -3,14 +3,15 @@ const displayProx = document.getElementById('proxSinal');
 const btnIniciar = document.getElementById('btnIniciar');
 const statusTexto = document.getElementById('status');
 
-// Horários fixos conforme solicitado (Último às 17:10)
+// Horários fixos conforme solicitado
 const mapaHorarios = {
     "07:00": "somA1", "07:45": "somA2", "08:30": "somA3",
     "09:15": "somA4", "09:28": "somA5", "09:30": "somA6",
-    "10:20": "somA7", "11:10": "somA8", "12:00": "somA9",
+    "10:25": "somA7", "11:10": "somA8", "12:00": "somA9",
     "13:00": "somA1", "13:45": "somA2", "14:30": "somA3",
     "15:15": "somA4", "15:28": "somA5", "15:30": "somA6",
-    "16:20": "somA7", "17:10": "somA9" 
+    "16:20": "somA7", 
+    "17:10": "somFim" // Alterado para tocar o ID somFim (sons/fim.mp3)
 };
 
 let sistemaAtivo = false;
