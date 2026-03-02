@@ -3,39 +3,27 @@ const displayProx = document.getElementById('proxSinal');
 const btnIniciar = document.getElementById('btnIniciar');
 const statusTexto = document.getElementById('status');
 
-// Mapeamento simples: Horário -> ID do Áudio Específico
-const mapaHorarios = {
-    // --- MANHÃ ---
-    "07:00": "somA1", // Início
-    "07:45": "somA2", // Fim 1ª
-    "08:30": "somA3", // Fim 2ª
-    "09:15": "somA4", // Início Intervalo
-    "09:36": "somA5", // Aviso (4 min antes de 09:40)
-    "09:40": "somA6", // Fim Intervalo / Início 4ª
-    "10:25": "somA7", // Início 5ª
-    "11:10": "somA8", // Início 6ª
-    "11:55": "somA9", // Fim 6ª (Saída Manhã)
-
-    // --- TARDE ---
-    "13:00": "somA1", // Início
-    "13:45": "somA2", // Fim 1ª
-    "14:30": "somA3", // Fim 2ª
-    "15:15": "somA4", // Início Intervalo
-    "15:36": "somA5", // Aviso (4 min antes de 15:40)
-    "15:40": "somA6", // Fim Intervalo / Início 4ª
-    "16:25": "somA7", // Início 5ª
-    "17:55": "somA9"  // Fim 6ª (Apenas Seg/Ter)
+// 1. CARREGAMENTO DOS DADOS (Padrão ou Salvo)
+const horariosPadrao = {
+    "07:00": "somA1", "07:45": "somA2", "08:30": "somA3",
+    "09:15": "somA4", "09:36": "somA5", "09:40": "somA6",
+    "10:25": "somA7", "11:10": "somA8", "11:55": "somA9",
+    "13:00": "somA1", "13:45": "somA2", "14:30": "somA3",
+    "15:15": "somA4", "15:36": "somA5", "15:40": "somA6",
+    "16:25": "somA7", "17:55": "somA9"
 };
 
-const horariosEspeciais = ["17:10"]; 
+let mapaHorarios = JSON.parse(localStorage.getItem('configHorarios')) || horariosPadrao;
 
 let sistemaAtivo = false;
 let wakeLock = null;
 
+// --- LÓGICA DO RELÓGIO E TOQUE ---
+
 async function manterTelaLigada() {
     try {
         wakeLock = await navigator.wakeLock.request('screen');
-        statusTexto.innerText = "Sistema Ativo e Tela Bloqueada (Não feche)";
+        statusTexto.innerText = "Sistema Ativo e Tela Bloqueada";
         statusTexto.style.color = "#4CAF50"; 
     } catch (err) {
         statusTexto.innerText = "Sistema Ativo (Mantenha o app aberto)";
@@ -44,13 +32,9 @@ async function manterTelaLigada() {
 
 btnIniciar.addEventListener('click', () => {
     sistemaAtivo = true;
-    
-    // Libera o áudio do Intro e do A1 para o navegador "acordar" o som
+    // Acorda o áudio no mobile
     const intro = document.getElementById('somIntro');
-    const unlock = document.getElementById('somA1');
-    
-    intro.play().catch(()=>{}); intro.pause();
-    unlock.play().catch(()=>{}); unlock.pause();
+    intro.play().then(() => { intro.pause(); }).catch(()=>{});
     
     btnIniciar.style.display = 'none';
     manterTelaLigada();
@@ -59,62 +43,33 @@ btnIniciar.addEventListener('click', () => {
 
 function atualizarRelogio() {
     const agora = new Date();
-    const horas = String(agora.getHours()).padStart(2, '0');
-    const minutos = String(agora.getMinutes()).padStart(2, '0');
-    const segundos = String(agora.getSeconds()).padStart(2, '0');
-    const horaAtual = `${horas}:${minutos}`;
+    const h = String(agora.getHours()).padStart(2, '0');
+    const m = String(agora.getMinutes()).padStart(2, '0');
+    const s = String(agora.getSeconds()).padStart(2, '0');
+    const horaAtual = `${h}:${m}`;
 
-    displayRelogio.innerText = `${horas}:${minutos}:${segundos}`;
+    displayRelogio.innerText = `${h}:${m}:${s}`;
 
-    if (sistemaAtivo && segundos === "00") {
-        verificarToque(horaAtual);
+    if (sistemaAtivo && s === "00") {
+        if (mapaHorarios[horaAtual]) {
+            tocarSequencia(mapaHorarios[horaAtual]);
+        }
     }
     
-    if (segundos === "00") {
-        atualizarProximoSinal();
-    }
+    if (s === "00") { atualizarProximoSinal(); }
 }
 
-function verificarToque(hora) {
-    // Caso 1: Horário Especial (17:10)
-    if (hora === "17:10") {
-        const diaSemana = new Date().getDay(); 
-        
-        if (diaSemana >= 3 && diaSemana <= 5) {
-            tocarSequencia('somFim'); // Intro + Saída
-            console.log("Sexta aula cancelada. Tocando saída.");
-        } else {
-            tocarSequencia('somA8'); // Intro + 6ª aula
-            console.log("Iniciando 6ª aula.");
-        }
-        return;
-    }
-
-    // Caso 2: Horários normais
-    if (mapaHorarios[hora]) {
-        tocarSequencia(mapaHorarios[hora]);
-    }
-}
-
-// NOVA FUNÇÃO: Toca Intro -> Espera -> Toca Específico
 function tocarSequencia(idElementoEspecifico) {
     const intro = document.getElementById('somIntro');
     const especifico = document.getElementById(idElementoEspecifico);
 
     if (intro && especifico) {
-        console.log(`Iniciando sequência: Intro + ${idElementoEspecifico}`);
-        
-        // Garante que o volume está no máximo
         intro.volume = 1.0;
         especifico.volume = 1.0;
-
-        // Quando o intro terminar, toca o próximo
         intro.onended = function() {
             especifico.currentTime = 0;
             especifico.play();
         };
-
-        // Começa tocando o intro
         intro.currentTime = 0;
         intro.play();
     }
@@ -122,16 +77,59 @@ function tocarSequencia(idElementoEspecifico) {
 
 function atualizarProximoSinal() {
     const agora = new Date();
-    const horaAtualMinutos = agora.getHours() * 60 + agora.getMinutes();
-    const listaHorarios = [...Object.keys(mapaHorarios), ...horariosEspeciais];
-    listaHorarios.sort();
-
-    const proximo = listaHorarios.find(h => {
+    const atualMin = agora.getHours() * 60 + agora.getMinutes();
+    const lista = Object.keys(mapaHorarios).sort();
+    
+    const proximo = lista.find(h => {
         const [hh, mm] = h.split(':');
-        return (parseInt(hh) * 60 + parseInt(mm)) > horaAtualMinutos;
+        return (parseInt(hh) * 60 + parseInt(mm)) > atualMin;
     });
-
     displayProx.innerText = proximo || "Amanhã";
+}
+
+// --- LÓGICA DO EDITOR (INTERFACE) ---
+
+const editor = document.getElementById('editorHorarios');
+const listaUI = document.getElementById('listaHorariosUI');
+
+document.getElementById('btnAbrirEditor').onclick = () => {
+    editor.style.display = 'block';
+    renderizarListaEditor();
+};
+
+function fecharEditor() { editor.style.display = 'none'; }
+
+function renderizarListaEditor() {
+    listaUI.innerHTML = '';
+    Object.keys(mapaHorarios).sort().forEach(hora => {
+        const div = document.createElement('div');
+        div.className = 'item-horario';
+        div.innerHTML = `
+            <span><strong>${hora}</strong> - ${mapaHorarios[hora]}</span>
+            <button class="btn-excluir" onclick="removerHorario('${hora}')">Remover</button>
+        `;
+        listaUI.appendChild(div);
+    });
+}
+
+function adicionarNovoHorario() {
+    const h = document.getElementById('novoHora').value;
+    const s = document.getElementById('novoSom').value;
+    if (h) {
+        mapaHorarios[h] = s;
+        salvarDados();
+    }
+}
+
+function removerHorario(h) {
+    delete mapaHorarios[h];
+    salvarDados();
+}
+
+function salvarDados() {
+    localStorage.setItem('configHorarios', JSON.stringify(mapaHorarios));
+    renderizarListaEditor();
+    atualizarProximoSinal();
 }
 
 setInterval(atualizarRelogio, 1000);
