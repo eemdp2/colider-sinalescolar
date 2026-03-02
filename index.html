@@ -3,76 +3,97 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sinal Escolar</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="manifest" href="manifest.json">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black">
-    <meta name="apple-mobile-web-app-title" content="Sinal">
-    <link rel="apple-touch-icon" href="icon-192.png">
+    <title>Sinal Escolar Pro</title>
     <style>
         :root {
-            --primary-color: #ffc107;
-            --bg-dark: #121212;
-            --sidebar-bg: #1e1e1e;
-            --highlight: #4CAF50;
+            --primary: #00f2ff;
+            --accent: #ffc107;
+            --bg: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --highlight: #22c55e;
         }
 
         body {
-            font-family: sans-serif;
-            background-color: var(--bg-dark);
-            color: white;
+            font-family: 'Inter', system-ui, sans-serif;
+            background: radial-gradient(circle at top right, #1e293b, #0f172a);
+            color: #f8fafc;
             margin: 0;
             display: flex;
             height: 100vh;
-            overflow: hidden;
         }
 
-        /* BARRA LATERAL */
+        /* SIDEBAR ESTILIZADA */
         .sidebar {
-            width: 300px;
-            background-color: var(--sidebar-bg);
-            border-right: 2px solid #333;
+            width: 350px;
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            border-right: 1px solid rgba(255,255,255,0.1);
             display: flex;
             flex-direction: column;
-            overflow-y: auto;
+            box-shadow: 10px 0 30px rgba(0,0,0,0.3);
         }
 
         .sidebar-header {
-            padding: 20px;
-            background: #252525;
+            padding: 30px 20px;
             text-align: center;
-            border-bottom: 1px solid #333;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .sidebar-header h3 {
+            margin: 0;
+            letter-spacing: 2px;
+            color: var(--primary);
+            text-shadow: 0 0 10px rgba(0, 242, 255, 0.5);
         }
 
         .lista-horarios {
             list-style: none;
             padding: 0;
             margin: 0;
+            overflow-y: auto;
         }
 
         .horario-item {
             padding: 15px 20px;
-            border-bottom: 1px solid #2a2a2a;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
             display: flex;
             justify-content: space-between;
-            transition: 0.3s;
-            font-size: 0.9rem;
-            color: #bbb;
+            align-items: center;
+            transition: all 0.2s;
         }
 
-        /* TARJA DE DESTAQUE (HORÁRIO ATUAL) */
+        .horario-item:hover {
+            background: rgba(255,255,255,0.05);
+        }
+
+        /* TARJA ATIVA */
         .horario-item.ativo {
-            background-color: var(--highlight);
-            color: white;
-            font-weight: bold;
-            border-left: 5px solid white;
+            background: linear-gradient(90deg, rgba(34, 197, 94, 0.2), transparent);
+            border-left: 4px solid var(--highlight);
+            color: #fff;
         }
 
-        .intervalo-label {
-            color: var(--primary-color);
-            font-size: 0.7rem;
-            display: block;
+        .horario-item.ativo .time-tag { color: var(--highlight); }
+
+        /* BOTÃO DE TESTE */
+        .btn-teste {
+            background: rgba(255,255,255,0.1);
+            border: none;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.3s;
+            margin-left: 10px;
+        }
+
+        .btn-teste:hover {
+            background: var(--primary);
+            transform: scale(1.1);
         }
 
         /* CONTEÚDO PRINCIPAL */
@@ -82,34 +103,61 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            text-align: center;
-            padding: 20px;
+            position: relative;
         }
 
         #relogio {
-            font-size: 5rem;
-            margin-bottom: 20px;
+            font-size: 8rem;
+            font-weight: 800;
+            font-family: 'JetBrains Mono', monospace;
+            background: linear-gradient(to bottom, #fff, #94a3b8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 0;
+            filter: drop-shadow(0 0 20px rgba(0, 242, 255, 0.2));
         }
 
-        .proximo-toque {
-            font-size: 2rem;
-            color: var(--primary-color);
+        .proximo-container {
+            margin-top: 20px;
+            padding: 15px 40px;
+            border-radius: 100px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            font-size: 1.5rem;
         }
+
+        #proxSinal { color: var(--accent); font-weight: bold; }
 
         #btnIniciar {
-            padding: 15px 40px;
+            margin-top: 30px;
+            padding: 18px 60px;
             font-size: 1.2rem;
-            background: var(--primary-color);
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
+            text-transform: uppercase;
             font-weight: bold;
-            margin-bottom: 20px;
+            letter-spacing: 2px;
+            border-radius: 50px;
+            border: none;
+            background: var(--primary);
+            color: #000;
+            cursor: pointer;
+            box-shadow: 0 0 30px rgba(0, 242, 255, 0.4);
+            transition: 0.3s;
         }
 
-        @media (max-width: 768px) {
+        #btnIniciar:hover { transform: translateY(-3px); box-shadow: 0 0 50px rgba(0, 242, 255, 0.6); }
+
+        .tag-tipo {
+            font-size: 0.7rem;
+            padding: 2px 6px;
+            border-radius: 4px;
+            background: rgba(255,255,255,0.1);
+            margin-right: 10px;
+        }
+
+        @media (max-width: 900px) {
             body { flex-direction: column; }
             .sidebar { width: 100%; height: 40%; }
+            #relogio { font-size: 4rem; }
         }
     </style>
 </head>
@@ -117,21 +165,17 @@
 
     <div class="sidebar">
         <div class="sidebar-header">
-            <h3>Grade de Horários</h3>
+            <h3>SINAL ESCOLAR</h3>
         </div>
-        <ul class="lista-horarios" id="listaHorariosUI">
-            </ul>
+        <ul class="lista-horarios" id="listaHorariosUI"></ul>
     </div>
 
     <div class="main-content">
-        <h1>Sinal Escolar Automático</h1>
-        
         <div id="relogio">00:00:00</div>
+        <button id="btnIniciar">Ativar Sistema</button>
+        <div id="status" style="margin-top:10px; color:#64748b">Sistema Offline</div>
         
-        <button id="btnIniciar">ATIVAR SISTEMA</button>
-        <p id="status">Sistema Inativo. Clique em ativar.</p>
-        
-        <div class="proximo-toque">
+        <div class="proximo-container">
             Próximo sinal: <span id="proxSinal">--:--</span>
         </div>
     </div>
