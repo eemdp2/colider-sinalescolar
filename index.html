@@ -4,20 +4,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sinal Escolar</title>
-    
     <link rel="stylesheet" href="style.css">
-    
     <link rel="manifest" href="manifest.json">
-    
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
     <meta name="apple-mobile-web-app-title" content="Sinal">
     <link rel="apple-touch-icon" href="icon-192.png">
+    <style>
+        /* Estilos rápidos para o editor */
+        #editorHorarios { display:none; background: #f9f9f9; padding: 15px; border-radius: 8px; color: #333; margin-top: 20px; text-align: left; border: 1px solid #ccc; }
+        .item-horario { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; padding-bottom: 5px; border-bottom: 1px solid #eee; }
+        .btn-excluir { background: #ff4d4d; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
+        .controles-add { margin-top: 15px; display: flex; flex-direction: column; gap: 10px; }
+        select, input[type="time"] { padding: 8px; border-radius: 4px; border: 1px solid #ccc; }
+    </style>
 </head>
 <body>
     <div class="container">
         <h1>Sinal Escolar Automático</h1>
-        
         <div id="relogio">00:00:00</div>
         
         <button id="btnIniciar">ATIVAR SISTEMA</button>
@@ -26,16 +30,46 @@
         <div class="proximo-toque">
             Próximo sinal: <span id="proxSinal">--:--</span>
         </div>
+
+        <button id="btnAbrirEditor" style="background: #666; margin-top: 20px;">⚙️ CONFIGURAR HORÁRIOS</button>
+
+        <div id="editorHorarios">
+            <h3>Gerenciar Horários</h3>
+            <div id="listaHorariosUI"></div>
+            
+            <div class="controles-add">
+                <input type="time" id="novoHora">
+                <select id="novoSom">
+                    <option value="somA1">Início (A1)</option>
+                    <option value="somA2">Fim 1ª (A2)</option>
+                    <option value="somA3">Fim 2ª (A3)</option>
+                    <option value="somA4">Início Intervalo (A4)</option>
+                    <option value="somA5">Aviso (A5)</option>
+                    <option value="somA6">Fim Int./Início 4ª (A6)</option>
+                    <option value="somA7">Início 5ª (A7)</option>
+                    <option value="somA8">Início 6ª (A8)</option>
+                    <option value="somA9">Saída (A9)</option>
+                    <option value="somFim">Saída Especial (Fim)</option>
+                </select>
+                <button onclick="adicionarNovoHorario()" style="background: #4CAF50;">ADICIONAR</button>
+                <button onclick="fecharEditor()" style="background: #999;">FECHAR</button>
+            </div>
+        </div>
     </div>
 
     <audio id="somIntro" src="sons/sinal.mp3"></audio>
-
     <audio id="somA1" src="sons/a1.mp3"></audio>
     <audio id="somA2" src="sons/a2.mp3"></audio>
     <audio id="somA3" src="sons/a3.mp3"></audio>
-    
-    <audio id="somA4" src="sons/a4.mp3"></audio> <audio id="somA5" src="sons/a5.mp3"></audio> <audio id="somA6" src="sons/a6.mp3"></audio> <audio id="somA7" src="sons/a7.mp3"></audio> <audio id="somA8" src="sons/a8.mp3"></audio> <audio id="somA9" src="sons/a9.mp3"></audio> <audio id="somFim" src="sons/fim.mp3"></audio> <script src="script.js"></script>
+    <audio id="somA4" src="sons/a4.mp3"></audio> 
+    <audio id="somA5" src="sons/a5.mp3"></audio> 
+    <audio id="somA6" src="sons/a6.mp3"></audio> 
+    <audio id="somA7" src="sons/a7.mp3"></audio> 
+    <audio id="somA8" src="sons/a8.mp3"></audio> 
+    <audio id="somA9" src="sons/a9.mp3"></audio> 
+    <audio id="somFim" src="sons/fim.mp3"></audio>
 
+    <script src="script.js"></script>
     <script>
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('sw.js')
