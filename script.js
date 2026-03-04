@@ -4,6 +4,7 @@ const btnIniciar = document.getElementById('btnIniciar');
 const statusTexto = document.getElementById('status');
 const listaUI = document.getElementById('listaHorariosUI');
 
+// 1. CONFIGURAÇÃO DA GRADE (Exatamente como solicitado)
 const gradeEscolar = [
     { inicio: "07:00", fim: "07:45", desc: "1ª Aula", som: "somA1" },
     { inicio: "07:45", fim: "08:30", desc: "2ª Aula", som: "somA2" },
@@ -26,6 +27,7 @@ const gradeEscolar = [
 
 let sistemaAtivo = false;
 
+// 2. GERAÇÃO DA INTERFACE LATERAL
 function renderizarSidebar() {
     listaUI.innerHTML = '';
     gradeEscolar.forEach((item, index) => {
@@ -38,7 +40,7 @@ function renderizarSidebar() {
                 <span class="tag-tipo">${item.desc}</span>
                 <strong class="time-tag">${item.inicio}</strong>
             </div>
-            <button class="btn-teste" onclick="testarSom('${item.som}')" title="Testar Som">
+            <button class="btn-teste" onclick="testarSom('${item.som}')" title="Testar Sequência Completa">
                 ▶
             </button>
         `;
@@ -46,24 +48,43 @@ function renderizarSidebar() {
     });
 }
 
+// 3. FUNÇÃO DE TESTE (Toca Intro + Áudio da Aula)
 function testarSom(idSom) {
-    // Toca o som de teste (sem a intro para ser mais rápido)
-    const audio = document.getElementById(idSom);
-    if (audio) {
-        audio.currentTime = 0;
-        audio.play().catch(e => alert("Clique em 'Ativar Sistema' primeiro para permitir áudio."));
+    const intro = document.getElementById('somIntro');
+    const final = document.getElementById(idSom);
+
+    if (intro && final) {
+        // Reinicia os áudios caso já estejam tocando
+        intro.pause();
+        final.pause();
+        intro.currentTime = 0;
+        final.currentTime = 0;
+
+        statusTexto.innerText = "TESTANDO SOM...";
+        
+        intro.play().then(() => {
+            intro.onended = () => {
+                final.currentTime = 0;
+                final.play();
+                final.onended = () => { statusTexto.innerText = "SISTEMA ONLINE"; };
+            };
+        }).catch(e => {
+            alert("Erro: Clique em 'Ativar Sistema' primeiro para permitir o áudio no navegador.");
+        });
     }
 }
 
-function atualizarRelogio() {
+// 4. LÓGICA DO RELÓGIO E DISPARO AUTOMÁTICO
+function atualizarSistema() {
     const agora = new Date();
     const h = agora.getHours();
     const m = agora.getMinutes();
     const s = agora.getSeconds();
     
     const horaAtualStr = `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
-    const totalMinutos = h * 60 + m;
+    const tempoTotalMinutos = h * 60 + m;
 
+    // Atualiza o relógio principal
     displayRelogio.innerText = `${horaAtualStr}:${String(s).padStart(2, '0')}`;
 
     gradeEscolar.forEach((item, index) => {
@@ -72,49 +93,68 @@ function atualizarRelogio() {
         const minIn = hIn * 60 + mIn;
         const minFi = hFi * 60 + mFi;
 
-        const el = document.getElementById(`item-${index}`);
-        if (totalMinutos >= minIn && totalMinutos < minFi) {
-            el.classList.add('ativo');
+        const elementoUI = document.getElementById(`item-${index}`);
+
+        // ATUALIZA A TARJA DE DESTAQUE
+        if (tempoTotalMinutos >= minIn && tempoTotalMinutos < minFi) {
+            elementoUI.classList.add('ativo');
         } else {
-            el.classList.remove('ativo');
+            elementoUI.classList.remove('ativo');
         }
 
-        // Toca o sinal automático
+        // GATILHO AUTOMÁTICO (Somente se sistema estiver ativo e no segundo 00)
         if (sistemaAtivo && s === 0 && horaAtualStr === item.inicio) {
             tocarSequencia(item.som);
         }
     });
 
-    if (s === 0) atualizarProximoSinal(totalMinutos);
+    // Atualiza o próximo sinal apenas na virada do minuto
+    if (s === 0) atualizarProximoSinal(tempoTotalMinutos);
 }
 
+// 5. SEQUÊNCIA AUTOMÁTICA (Intro -> Som)
 function tocarSequencia(idSom) {
     const intro = document.getElementById('somIntro');
-    const final = document.getElementById(idSom);
-    if (intro && final) {
+    const somFinal = document.getElementById(idSom);
+
+    if (intro && somFinal) {
         intro.currentTime = 0;
         intro.play();
-        intro.onended = () => { final.play(); };
+        intro.onended = () => {
+            somFinal.currentTime = 0;
+            somFinal.play();
+        };
     }
 }
 
+// 6. CÁLCULO DO PRÓXIMO SINAL
 function atualizarProximoSinal(minutosAtuais) {
     const proximo = gradeEscolar.find(item => {
         const [h, m] = item.inicio.split(':').map(Number);
         return (h * 60 + m) > minutosAtuais;
     });
+
     displayProx.innerText = proximo ? proximo.inicio : "Amanhã";
 }
 
+// 7. BOTÃO DE INICIALIZAÇÃO (Desbloqueia o áudio)
 btnIniciar.onclick = () => {
     sistemaAtivo = true;
     btnIniciar.style.display = 'none';
     statusTexto.innerText = "SISTEMA ONLINE";
     statusTexto.style.color = "#22c55e";
-    // Tira o "mudo" do navegador
-    document.getElementById('somIntro').play().then(p => document.getElementById('somIntro').pause());
+    
+    // Tira o "mudo" do navegador tocando um silêncio rápido
+    const unlock = document.getElementById('somIntro');
+    unlock.play().then(() => {
+        unlock.pause();
+        unlock.currentTime = 0;
+    }).catch(e => console.log("Erro ao desbloquear áudio:", e));
+    
+    atualizarProximoSinal(new Date().getHours() * 60 + new Date().getMinutes());
 };
 
+// INICIALIZAÇÃO GLOBAL
 renderizarSidebar();
-setInterval(atualizarRelogio, 1000);
-atualizarRelogio();
+setInterval(atualizarSistema, 1000);
+atualizarSistema();
